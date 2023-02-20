@@ -12,6 +12,8 @@ import (
 	"sync"
 )
 
+var dataHeaders = make([]string, 0)
+
 func NewImportDataServices(domainRepo repository.DomainRepository, wg *sync.WaitGroup) *ImportDataServices {
 	return &ImportDataServices{
 		DomainRepo: domainRepo,
@@ -24,9 +26,9 @@ type ImportDataServices struct {
 	Wg         *sync.WaitGroup
 }
 
-func (i *ImportDataServices) DispatchWorkers(jobs <-chan []interface{}) {
+func (i *ImportDataServices) DispatchWorkers(jobs <-chan model.Domain) {
 	for workerIndex := 0; workerIndex <= config.TotalWorker; workerIndex++ {
-		go func(workerIndex int, jobs <-chan []interface{}) {
+		go func(workerIndex int, jobs <-chan model.Domain) {
 			counter := 0
 
 			for job := range jobs {
@@ -66,7 +68,7 @@ func (i *ImportDataServices) ImportData(workerIndex, counter int, request model.
 	}
 }
 
-func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.Reader, jobs chan<- []interface{}) {
+func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.Reader, jobs chan<- model.Domain) {
 	for {
 		row, err := csvReader.Read()
 		if err != nil {
@@ -81,13 +83,28 @@ func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.R
 			continue
 		}
 
-		rowOrdered := make([]interface{}, 0)
-		for _, data := range row {
-			rowOrdered = append(rowOrdered, data)
+		// rowOrdered := make([]interface{}, 0)
+		// rowOrdered := make([]model.Domain, 0)
+		// for _, data := range row {
+		// 	rowOrdered = append(rowOrdered, data)
+		// }
+		rowData := model.Domain{
+			GlobalRank:     ToInt(row[0]),
+			TldRank:        ToInt(row[1]),
+			Domain:         row[2],
+			TLD:            row[3],
+			RefSubNets:     ToInt(row[4]),
+			RefIPs:         ToInt(row[5]),
+			IDN_Domain:     row[6],
+			IDN_TLD:        row[7],
+			PrevGlobalRank: ToInt(row[8]),
+			PrevTldRank:    ToInt(row[9]),
+			PrevRefSubNets: ToInt(row[10]),
+			PrevRefIPs:     ToInt(row[11]),
 		}
 
 		i.Wg.Add(1)
-		jobs <- rowOrdered
+		jobs <- rowData
 	}
 
 	close(jobs)

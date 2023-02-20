@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"goinsertmil/config"
+	"goinsertmil/model"
 	"goinsertmil/repository"
 	"goinsertmil/service"
 	"log"
@@ -12,6 +13,8 @@ import (
 )
 
 func main() {
+	fmt.Println("start")
+
 	start := time.Now()
 
 	db, err := config.ConnectDB()
@@ -19,17 +22,17 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	var wg *sync.WaitGroup
+	wg := new(sync.WaitGroup)
 	domainRepo := repository.NewDomainRepository(db)
 	importDataService := service.NewImportDataServices(domainRepo, wg)
 
-	csvReader, csvFile, err := service.OpenCsvFile()
+	csvReader, csvFile, err := service.OpenCsvFile(config.CsvFile)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	defer csvFile.Close()
 
-	jobs := make(chan []interface{}, 0)
+	jobs := make(chan model.Domain)
 	go importDataService.DispatchWorkers(jobs)
 	importDataService.ReadCsvFilePerLineThenSendToWorker(csvReader, jobs)
 

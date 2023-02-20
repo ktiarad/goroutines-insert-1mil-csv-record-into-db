@@ -12,5 +12,5 @@ const (
 	DbMaxConns     = 100
 	TotalWorker    = 100
 
-	CsvFile = "majestic_million.csv"
+	CsvFile = "resources/majestic_million.csv"
 )

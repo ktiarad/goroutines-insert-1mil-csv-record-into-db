@@ -1,11 +1,13 @@
 package repository
 
-func GenerateDollars(data []interface{}) []string {
-	dollarStr := make([]string, 0)
+import "fmt"
+
+func GenerateDollarsMark(data []interface{}) []string {
+	s := make([]string, 0)
 
 	for i := 1; i <= len(data); i++ {
-		dollarStr = append(dollarStr, "?")
+		s = append(s, fmt.Sprintf("$%d", i))
 	}
 
-	return dollarStr
+	return s
 }
