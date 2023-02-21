@@ -41,8 +41,9 @@ func (i *ImportDataServices) DispatchWorkers(jobs <-chan model.Domain) {
 }
 
 func (i *ImportDataServices) ImportData(workerIndex, counter int, request model.Domain) {
-	var outerError error
 	for {
+		var outerError error
+
 		func(outerError *error) {
 			defer func() {
 				if err := recover(); err != nil {
@@ -69,6 +70,7 @@ func (i *ImportDataServices) ImportData(workerIndex, counter int, request model.
 }
 
 func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.Reader, jobs chan<- model.Domain) {
+	isHeader := true
 	for {
 		row, err := csvReader.Read()
 		if err != nil {
@@ -78,10 +80,15 @@ func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.R
 			break
 		}
 
-		if len(dataHeaders) == 0 {
-			dataHeaders = row
+		if isHeader {
+			isHeader = false
 			continue
 		}
+
+		// if len(dataHeaders) == 0 {
+		// 	dataHeaders = row
+		// 	continue
+		// }
 
 		// rowOrdered := make([]interface{}, 0)
 		// rowOrdered := make([]model.Domain, 0)
@@ -105,6 +112,7 @@ func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.R
 
 		i.Wg.Add(1)
 		jobs <- rowData
+
 	}
 
 	close(jobs)

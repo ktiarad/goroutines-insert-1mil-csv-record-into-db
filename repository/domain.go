@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"goinsertmil/model"
 	"log"
-	"strings"
 )
 
 type DomainRepository interface {
@@ -46,7 +45,7 @@ func (d *domainRepository) InsertDomain(ctx context.Context, request model.Domai
 	}
 
 	query := fmt.Sprintf("INSERT INTO domains (global_rank, tld_rank, domain, tld, ref_sub_nets, ref_ips, idn_domain, idn_tld, prev_global_rank, prev_tld_rank, prev_ref_sub_nets, prev_ref_ips) VALUES (%s)",
-		strings.Join(GenerateDollarsMark(data), ","),
+		GenerateDollarsMark(data),
 	)
 
 	_, err = conn.ExecContext(ctx, query, data...)
@@ -59,5 +58,5 @@ func (d *domainRepository) InsertDomain(ctx context.Context, request model.Domai
 		log.Fatalf("error when close conn: %v", err.Error())
 	}
 
-	return nil
+	return err
 }
