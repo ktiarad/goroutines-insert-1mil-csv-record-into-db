@@ -112,7 +112,6 @@ func (i *ImportDataServices) ReadCsvFilePerLineThenSendToWorker(csvReader *csv.R
 
 		i.Wg.Add(1)
 		jobs <- rowData
-
 	}
 
 	close(jobs)

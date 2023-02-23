@@ -33,6 +33,7 @@ func main() {
 	defer csvFile.Close()
 
 	jobs := make(chan model.Domain)
+
 	go importDataService.DispatchWorkers(jobs)
 	importDataService.ReadCsvFilePerLineThenSendToWorker(csvReader, jobs)
 

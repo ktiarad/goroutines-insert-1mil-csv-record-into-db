@@ -9,8 +9,8 @@ const (
 	DbName = "<your_setting>"
 
 	DbMaxIdleConns = 4
-	DbMaxConns     = 100
-	TotalWorker    = 100
+	DbMaxConns     = 50
+	TotalWorker    = 50
 
-	CsvFile = "resources/majestic_million.csv"
+	CsvFile = "resources/majestic_million_csv.csv"
 )
